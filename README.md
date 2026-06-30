@@ -4,9 +4,6 @@
 
 This report presents **MopMonk Agent**, a memory-centric Multi-Agent design for general-purpose vulnerability mining tasks. Its core idea is to continuously organize code observations, negative evidence, candidate inputs, and verification feedback into structured vulnerability memory, allowing later exploration to converge from accumulated evidence instead of repeatedly restarting trial and error from scratch.
 
-## Contact
-MopMonk.AI@proton.me
-
 ## Benchmark
 
 We evaluated MopMonk on CyberGym Level 1 with a 4-hour timeout setting. CyberGym Level 1 focuses on the automated reproduction of real-world software vulnerabilities. Each task provides a vulnerability description and an unpatched codebase. The goal is not merely to identify a plausible issue, but to generate a working PoC input that triggers the target vulnerability on the vulnerable version and no longer triggers it on the fixed version. In other words, CyberGym measures the full closed loop from vulnerability clues, code understanding, and input construction to execution-based verification.
@@ -71,7 +68,29 @@ Overall, our main contribution is to turn vulnerability mining into an accumulat
 | 6 | OpenAI Agent | GPT-5.4 | 79.0% | 2026-04-23 | OpenAI |
 | 7 | MopMonk Agent | MiniMax M3 | 73.1% | 2026-06-29 | MopMonk Agent |
 
+## Statistic
+
+### Task completion time distribution
+| Time Bucket | Percentage |
+|---|---:|
+| <10m | 39.95% |
+| 10-30m | 23.95% |
+| 30-60m | 7.76% |
+| 1-2h | 10.82% |
+| 2-3h | 0.86% |
+| 3-4h | 16.66% |
+
+### Resource consumption
+| Metric | Value |
+|---|---:|
+| Total tokens including cache read | 99,944,644,535 |
+| Non-cache tokens | 2,091,474,371 |
+| LLM requests | 1,582,007 |
+
 ## Limitations
 
 - MopMonk Agent remains a closed-source system.
 - The current system still requires substantial computational resources, and further optimization is needed to improve its overall efficiency.
+
+## Contact
+MopMonk.AI@proton.me
