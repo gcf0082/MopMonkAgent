@@ -1,0 +1,29 @@
+{
+  "tool": "semgrep",
+  "alerts": [
+    {
+      "id": "ALERT-1",
+      "rule": "python.subprocess-shell-true-tainted",
+      "severity": "HIGH",
+      "location": "app.py:20",
+      "message": "subprocess.check_output called with shell=True and tainted input",
+      "code": "result = subprocess.check_output(cmd, shell=True)"
+    },
+    {
+      "id": "ALERT-2",
+      "rule": "python.eval-usage",
+      "severity": "HIGH",
+      "location": "app.py:32",
+      "message": "eval() called on user-controlled input",
+      "code": "return str(eval(expr))"
+    },
+    {
+      "id": "ALERT-3",
+      "rule": "python.sql-string-format",
+      "severity": "MEDIUM",
+      "location": "app.py:41",
+      "message": "SQL query built with f-string containing user input",
+      "code": "log_line = f\"SELECT * FROM users WHERE name LIKE '%{q}%'\""
+    }
+  ]
+}

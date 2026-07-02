@@ -1,0 +1,47 @@
+{
+  "skill_name": "mopmonk-vuln-hunting",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我审一下 evals/files/flask_ssrf/app/app.py 这个 Flask 后端，看看有没有 SSRF 类的风险，把发现的漏洞和判定依据都写清楚。工作目录你自己在同级建一个 workspace/ 存中间产物。",
+      "expected_output": "识别 /preview（弱 scheme 前缀检查）和 /import（parse-vs-use 主机名绕过）为 TRUE_POS，且给出源码证据；/healthcheck 与 /webhook 不应被误报。产出一份漏洞记忆文件 vuln_memory.json，其中 next_constraints 是具体单步问题（不是空话），负面证据记录了被排除的 handler 及原因。",
+      "files": ["evals/files/flask_ssrf"],
+      "expectations": [
+        "在工作目录下创建了 vuln_memory.json 且格式基本符合 memory-schema（含 vuln_goal / code_path / candidates / verification_state / negative_evidence / next_constraints 六类槽位中至少 5 类）",
+        "识别 /preview 路由为 TRUE_POS 或高风险 SSRF，并在 evidence 或输出中引用了 app.py:22 附近的源码片段（startswith('http') 或 proxy_get）",
+        "识别 /import 路由为 TRUE_POS 或高风险 SSRF，并在 evidence 中提到了 parsed.hostname 与 urlopen(data['url']) 之间的 parse-vs-use 不一致",
+        "/healthcheck 未被判定为 SSRF 漏洞（即不是 TRUE_POS）",
+        "/webhook 未被判定为 SSRF 漏洞（即不是 TRUE_POS）",
+        "next_constraints 中至少存在一条具体单步问题（引用了具体文件/函数/字段），而不是 '继续深入分析' 这种空话",
+        "在 negative_evidence 或等价字段中记录了至少一条被排除的 handler 及原因"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "这里是一份 Semgrep 输出（evals/files/sast_fp_check/alerts.json）和被扫描的源码（同目录 app.py）。三条告警里帮我确认哪些是真漏洞、哪些是 FP，每一条都要给出判定理由和代码证据。工作目录你自己建 workspace/。",
+      "expected_output": "ALERT-1 判定 TRUE_POS（shell=True + tainted cmd）；ALERT-2 判定 FALSE_POS（ast.literal_eval 前置门禁排除非字面量）；ALERT-3 判定 FALSE_POS（f-string 只是日志，实际执行走参数化）。所有判定都在 verification_state 中且带 evidence，FP 判定要有具体 reason 写入 negative_evidence。",
+      "files": ["evals/files/sast_fp_check"],
+      "expectations": [
+        "ALERT-1 被判定为 TRUE_POS / 真漏洞",
+        "ALERT-2 被判定为 FALSE_POS / 误报，且理由中提到 ast.literal_eval 或 '字面量' 或 'literal_eval' 起到的门禁作用",
+        "ALERT-3 被判定为 FALSE_POS / 误报，且理由中明确指出实际执行是参数化 query（含 execute(..., (...,)) 或 '参数化' 关键词）",
+        "至少两条 FP 的判定理由被记入 negative_evidence 或等价槽位，且理由具体（不是 '无风险' 这种空话）",
+        "输出的 vuln_memory.json（或等价记忆文件）覆盖了全部 3 条告警的判定"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "帮我看看 evals/files/go_authz/main.go 这个 Go HTTP 服务有没有越权（authorization）方面的风险，逐个 handler 分析。工作目录自己在同级建 workspace/。",
+      "expected_output": "handleProfile 判 TRUE_POS（无鉴权 IDOR）；handleAdminDelete 判 TRUE_POS（客户端可伪造 X-Role header）；handleMe 和 handleOrderUpdate 判定安全（不为 TRUE_POS）。产出 vuln_memory.json，next_constraints 是具体问题。",
+      "files": ["evals/files/go_authz"],
+      "expectations": [
+        "handleProfile 被判定为存在越权 / IDOR 漏洞 (TRUE_POS)，理由中提到无鉴权 / 未校验请求者身份",
+        "handleAdminDelete 被判定为存在鉴权漏洞 (TRUE_POS)，理由中提到 X-Role header 由客户端可控 / 可伪造",
+        "handleMe 未被判定为漏洞（不是 TRUE_POS）",
+        "handleOrderUpdate 未被判定为漏洞（不是 TRUE_POS，因为 order.OwnerID == sess.UserID 校验存在）",
+        "在工作目录下创建了 vuln_memory.json 且至少包含 vuln_goal / code_path / verification_state / next_constraints 四类槽位",
+        "所有 TRUE_POS 判定都在 evidence 中引用了 main.go 的具体行范围或源码片段"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "_comment": "MopMonk 漏洞挖掘记忆骨架。复制到任务工作目录并重命名为 vuln_memory.json 使用。所有 '_hint' 字段仅为填写提示，实际使用时请删除。",
+  "meta": {
+    "task_description": "",
+    "task_type": "whitebox_audit | sast_fp_check | entry_sink_hunt | poc_repro | unknown_hunt",
+    "created_at": "",
+    "updated_at": "",
+    "workspace": ""
+  },
+  "vuln_goal": [
+    {
+      "_hint": "冷启动至少写一条 goal。未知漏洞挖掘时可以写多条类别假设。",
+      "id": "goal-0001",
+      "category": "memory | injection | authz | deserialization | ssrf | race | crypto | logic | other",
+      "hypothesis": "",
+      "success_criteria": "",
+      "verification_method": "static | dynamic | mixed",
+      "verifier": "",
+      "status": "active",
+      "source_agent": "main",
+      "created_at": "",
+      "updated_at": "",
+      "evidence": []
+    }
+  ],
+  "code_path": {
+    "entries": [
+      {
+        "_hint": "冷启动时枚举所有外部入口：HTTP handler / CLI / IPC / RPC / 反序列化点 / 文件读入。每一个入口一条。",
+        "id": "ent-0001",
+        "kind": "http | cli | ipc | rpc | file_read | env | plugin | other",
+        "symbol": "",
+        "location": "path:line",
+        "status": "active",
+        "source_agent": "main",
+        "created_at": "",
+        "updated_at": "",
+        "evidence": []
+      }
+    ],
+    "trust_boundaries": [
+      {
+        "_hint": "标记用户可控数据跨入内部信任域的位置。这是漏洞最可能出现的地方。",
+        "id": "tb-0001",
+        "location": "path:line",
+        "from": "external",
+        "to": "internal_trusted",
+        "notes": "",
+        "status": "active",
+        "source_agent": "main",
+        "created_at": "",
+        "updated_at": "",
+        "evidence": []
+      }
+    ],
+    "sinks": [
+      {
+        "_hint": "危险 API 调用点。exec / SQL / eval / file / template / deserialize / http.get 等。",
+        "id": "sink-0001",
+        "kind": "exec | sql | file | ssrf_out | eval | template | deserialize | other",
+        "symbol": "",
+        "location": "path:line",
+        "status": "active",
+        "source_agent": "main",
+        "created_at": "",
+        "updated_at": "",
+        "evidence": []
+      }
+    ],
+    "chains": [
+      {
+        "_hint": "连接 entry -> sink 的数据流/调用链。reachability 从 plausible 起步，被证实后升级 confirmed，被证伪改为 disproved。",
+        "id": "chain-0001",
+        "entry_ref": "ent-0001",
+        "sink_ref": "sink-0001",
+        "steps": [
+          {"symbol": "", "location": "path:line", "note": ""}
+        ],
+        "reachability": "plausible | confirmed | disproved",
+        "status": "active",
+        "source_agent": "main",
+        "created_at": "",
+        "updated_at": "",
+        "evidence": []
+      }
+    ]
+  },
+  "data_shape": [
+    {
+      "_hint": "描述可控输入或状态的形态。约束数组是关键——校验规则写清楚，才能后续推 bypass。",
+      "id": "ds-0001",
+      "surface_ref": "ent-0001",
+      "shape": "",
+      "constraints": [],
+      "controllable_fields": [],
+      "notes": "",
+      "status": "active",
+      "source_agent": "main",
+      "created_at": "",
+      "updated_at": "",
+      "evidence": []
+    }
+  ],
+  "candidates": [
+    {
+      "_hint": "候选攻击 payload / 输入 / 操作序列。白盒审计时装的是可疑代码位点三元组。PoC 任务时装的是真实 payload。mutation_from 记录父候选 id，'seed' 表示原始。",
+      "id": "cand-0001",
+      "goal_ref": "goal-0001",
+      "hypothesis": "",
+      "mutation_from": "seed",
+      "mutation_op": "",
+      "payload_ref": "",
+      "payload_inline": "",
+      "status": "active",
+      "source_agent": "main",
+      "created_at": "",
+      "updated_at": "",
+      "evidence": []
+    }
+  ],
+  "negative_evidence": [
+    {
+      "_hint": "永久保留。任何被证伪的假设都要落到这里，reason 必须具体，reusable_for 尽量写出可复用条件，其它 subagent 用它来剪枝。",
+      "id": "neg-0001",
+      "claim": "",
+      "refutes": [],
+      "reason": "",
+      "reusable_for": "",
+      "status": "active",
+      "source_agent": "main",
+      "created_at": "",
+      "updated_at": "",
+      "evidence": []
+    }
+  ],
+  "verification_state": [
+    {
+      "_hint": "每个 candidate 一条对应的判定记录。verdict 从 NEEDS_MORE_EVIDENCE 起步，升级到 TRUE_POS 必须带 kind=source 或 kind=run 的 evidence。verdict_history 追加不覆盖。",
+      "id": "ver-0001",
+      "candidate_ref": "cand-0001",
+      "verdict": "NEEDS_MORE_EVIDENCE | TRUE_POS | FALSE_POS",
+      "verdict_history": [
+        {"at": "", "verdict": "NEEDS_MORE_EVIDENCE", "by": "main"}
+      ],
+      "notes": "",
+      "status": "active",
+      "source_agent": "main",
+      "created_at": "",
+      "updated_at": "",
+      "evidence": []
+    }
+  ],
+  "next_constraints": [
+    {
+      "_hint": "本槽位最关键。每一条必须是具体、单步可验证的问题。禁止写 '继续深入分析'、'进一步探索' 这类空话。how_to_verify 要写清是读文件/跑命令/构造请求。已完成的条目标 superseded。",
+      "id": "nc-0001",
+      "constraint": "",
+      "why": "",
+      "how_to_verify": "",
+      "priority": "high | medium | low",
+      "depends_on": [],
+      "status": "active",
+      "source_agent": "main",
+      "created_at": "",
+      "updated_at": "",
+      "evidence": []
+    }
+  ]
+}
